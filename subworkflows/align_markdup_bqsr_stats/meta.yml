@@ -60,19 +60,11 @@ input:
       description: Tabix index of the known sites for indels (optional)
       pattern: "*.vcf.gz.tbi"
 output:
-  - bam:
-      description: |
-        BAM file produced by bwa, de-duplicated with sambamba, and sorted by samtools
-        Structure: [ val(meta), path(bam) ]
-  - bai:
-      description: |
-        BAI index of the deduplicated and sorted BAM file
-        Structure: [ val(meta), path(bai) ]
   - flagstat:
       type: file
       description:
         File containing sambamba flagstat output
-        pattern: "*.{flagstat}"
+      pattern: "*.{flagstat}"
   - cram:
       description: |
         CRAM file of the deduplicated and sorted BAM file
@@ -89,7 +81,7 @@ output:
       type: file
       description:
         File containing samtool stats output
-        pattern: "*.{stats}"
+      pattern: "*.{stats}"
   - versions:
       description: |
         Files containing software versions

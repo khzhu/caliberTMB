@@ -7,7 +7,7 @@ include { FASTQC as FASTQC_TRIM } from '../../modules/fastqc/main'
 include { FASTP                 } from '../../modules/fastp/main'
 
 //
-// Function that parses fastp json output file to get total number of reads after trimming
+// Function that parses fastp JSON output files to obtain the total number of reads after trimming.
 //
 import groovy.json.JsonSlurper
 

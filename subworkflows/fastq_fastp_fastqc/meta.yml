@@ -103,6 +103,7 @@ output:
       pattern: "versions.yml"
 authors:
   - "@Joon-Klaps"
+  - "@kelseyz"
 maintainers:
   - "@Joon-Klaps"
   - "@kelseyz"

@@ -95,8 +95,6 @@ workflow ALIGN_MARKDUP_BQSR_STATS {
     SAMTOOLS_CONVERT ( GATK4_APPLYBQSR.out.bam, [[id:'genome'],fasta])
 
     emit:
-    bam      = GATK4_APPLYBQSR.out.bam        // channel: [ val(meta), path(bam) ]
-    bai      = GATK4_APPLYBQSR.out.bai        // channel: [ val(meta), path(bai) ]
     cram     = SAMTOOLS_CONVERT.out.bam       // channel: [ val(meta), path(cram) ]
     crai     = SAMTOOLS_CONVERT.out.crai      // channel: [ val(meta), path(crai) ]
     flagstat = SAMBAMBA_FLAGSTAT.out.stats    // channel: [ val(meta), path(flagstat) ]

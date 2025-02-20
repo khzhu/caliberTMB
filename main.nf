@@ -49,7 +49,7 @@ workflow {
                 INDEX_GENOME.out.index,
                 file(params.reference_file, checkIfExists: true),
                 params.val_sort_bam,
-                file(params.exome_plus_tumor_panel_bed, checkIfExists: true),
+                file(params.tumor_panel_bed, checkIfExists: true),
                 INDEX_GENOME.out.fai,
                 INDEX_GENOME.out.dict,
                 file(params.known_snp_vcf, checkIfExists: true),
@@ -61,16 +61,16 @@ workflow {
 
     // Somatic variant detection
     ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
-        .branch{ meta, bam, bai ->
+        .branch{ meta, cram, crai ->
             new_meta = meta.clone()
             new_meta.id = meta.pid
             new_meta.pid = ""
             new_meta.tissue = ""
             new_meta.purity = ""
-            tumor: bam.name.contains('_T')
-                return [new_meta, bam, bai]
-            normal: bam.name.contains('_N')
-                return [new_meta, bam, bai]
+            tumor: cram.name.contains('_T')
+                return [new_meta, cram, crai]
+            normal: cram.name.contains('_N')
+                return [new_meta, cram, crai]
         }
         .set {ch_sample_bams}
 

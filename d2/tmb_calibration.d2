@@ -49,10 +49,10 @@ vars: {
         Trim sequence adapters  {
             a: |
                 - remove sequencing adapters 
-                - generate QC reports
+                - generate prior/post QC reports
                 |
         }
-        Align reads to genome  {
+        Align reads to a genome  {
             a: |
                 - map to the genome
                 - mark duplicates
@@ -61,17 +61,41 @@ vars: {
                 - convert a bam to a cram
             |
         }
-        Trim sequence adapters -> Align reads to genome: trim
+        Trim sequence adapters -> Align reads to a genome: removal
         Somatic variant detection {
-            a: |
-                - variant calling with mutect2  
-                - variant calling with manta/strelka2  
-                - functional annotation with VEP 
-                - convert a vcf to MAF format
-                |
+            mutect2 {
+              a: |
+              - collect pileup summaries
+              - calculate cross-sample contamination
+              - variant calling with mutect2
+              - variant normalization
+              - indel left alignment
+              - functional annotation with VEP
+              - convert a vcf to MAF format
+              |
+            }
+            strelka2 {
+              a: |
+              - identify indel candidates by manta2
+              - variant calling with strelka2
+              - variant normalization
+              - indel left alignment
+              - functional annotation with VEP
+              - convert a vcf to MAF format
+              |
+            }
           }
-        Align reads to genome ->  Somatic variant detection: discovery
-        Somatic variant detection -> TMB estimation: calculate
+        Align reads to a genome ->  Somatic variant detection: discovery
+        TMB estimation  {
+          a: |
+              - exclude germline and cosmic variants
+              - synonymous and non-synonymous
+              - inframe and frameshift indels
+              - alternative allele count > 5
+              - read depth > 250x
+              |
+      }
+        Somatic variant detection -> TMB estimation: calibration
       }
 
       Sample Sheet -> Main workflow: Multiple sample processing

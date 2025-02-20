@@ -1,18 +1,30 @@
 # Tumor Mutational Burden (TMB) Project
 
 ## Overview
-Tumor Mutational Burden (TMB) - the total number of mutations (changes) found in the DNA of cancer cells. TMB varies from different sequencing platforms to different type of cancer. Hence, it is important to harmonize variant selection methods and choose reasonable thresholds for the alternative allele count and the read depth. Accurate estimate of the total number of mutations in the targeted regions may help doctors plan the best treatment for each individual patient.
-
-We present a nextflow workflow that calculates tumour mutational burden based on the criteria suggested by the [TMB Harmonization Consortium](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7174078/).
+Tumor Mutational Burden (TMB) refers to the total number of mutations in the DNA of cancer cells. TMB can vary across various sequencing platforms and types of cancer.
+Therefore, it is essential to standardize variant selection methods and establish suitable thresholds for alternative allele counts and read depth. An accurate estimation
+of the mutations in the targeted regions can assist doctors in planning the most effective treatment for each patient.
+We introduce a Nextflow workflow that calculates tumor mutational burden based on the criteria suggested by the [TMB Harmonization Consortium](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7174078/).
 
 ## Contents
-This workflow is designed to run genomic analysis on Illumina targeted exome sequencing data, in support of the tumor cancer diagnostic panel for Yale's Molecular Pathology Department.
-
-This pipeline starts from paired-end fastq data (.fastq.gz), and is meant to accompany the output from the [YCGA Illumina demultiplexing pipeline](https://medicine.yale.edu/genetics/research/ycga/faq/). It includes adapter trimming, QC assessment, alignment to the genome, variant calling, and TMB estimation, along with many other steps.
+This workflow aims to perform genomic analysis on Illumina targeted exome sequencing data, supporting the tumor cancer diagnostic panel for Yale's Molecular Pathology Department.
+The pipeline starts with paired-end FASTQ data (.fastq.gz) and is intended to complement the output from the [YCGA Illumina demultiplexing pipeline](https://medicine.yale.edu/genetics/research/ycga/faq/). It includes adapter trimming,
+QC assessment, alignment to the genome, variant calling, and TMB estimation, among many other steps.
 
 ## Containers
-The containers directory contains instructions and recipes for building Singularity containers used in the pipeline. Singularity containers are used on the Yale McCleary HPC cluster. The current pipeline configuration for McCleary uses .simg files stored in a shared location on the file system.
-## Directory structure
+The containers directory provides guidance and recipes for building Singularity containers used in the pipeline. Singularity containers are employed on the Yale McCleary HPC cluster. 
+The current configuration of the McCleary pipeline utilizes .simg files stored in a shared location on the file system.
+
+## Nextflow executable
+Install Nextflow on the McCleary cluster. This will place the Nextflow executable in the ~/.local/bin directory. Update your bashrc file to add it to your PATH.
+```
+module load GATK/4.6.0.0-GCCcore-12.2.0-Java-17
+curl -s https://get.nextflow.io | bash
+chmod +x nextflow
+nextflow info
+```
+## Directory structure:
+The TMB pipeline expects the following directory structure for the project root directory.
 ```
 TMB-estimation/
 ├── bin
@@ -62,17 +74,16 @@ TMB-estimation/
 ├── main.nf
 ```
 ## Set up and run a workflow
-1. This repository should first be cloned from GitHub:
+1. TThis repository must be cloned from GitHub first:
 ```
-git clone https://github.com/
+git clone https://github.com/khzhu/caliberTMB.git
 ```
-2. You will need to load JAVA runtime and install a copy of nextflow in your work environment on McCleary prior to running the workflow.
+2. Before you run the workflow, you need to load the Java runtime.
 ```
 module load ANTLR/2.7.7-GCCcore-12.2.0-Java-11
-curl -s https://get.nextflow.io | bash
-chmod +x nextflow
 ```
-3. The input sample JSON file should have at least five columns: specimen_id, patient_id, tissue (tumor source site), purity (estimated tumor cell percentages in tissue samples), and read1/2 (paired end raw reads).
+3. The input sample JSON file must include at least five columns: specimen_id, patient_id, tissue (tumor source site),
+purity (estimated tumor cell percentages in tissue samples), and read1/2 (paired-end raw reads).
 ```
 [
     {
@@ -85,9 +96,9 @@ chmod +x nextflow
     }
 ]
 ```
-
-4. Finally, you can use the following commands to start an interactive session in the McCleary cluster and submit a job. It is recommended that you export the TMPDIR variable to somewhere other than the default directory on McCleary which is /tmp. Alternatively,
-you can use the -w option to set a temp directory outside your home directory for the large number of intermediate files produced by each process.
+4. You can use the following commands to start an interactive session in the McCleary cluster and submit a job. Make sure to set the TMPDIR variable
+to a location other than the default directory on McCleary, which is /tmp. Alternatively, you can use the -w option to specify a temporary directory
+outside your home directory for the many intermediate files generated by each process.
 ```
 ssh user123@mccleary.ycrc.yale.edu
 salloc -p ycga -c 1 -t 00-3:00 --mem=8000
@@ -102,7 +113,7 @@ nextflow run main.nf -profile hg19 \
 -w /SolidTumor/v2_0_validation/tmp \
 -bg
 ```
-5. For multiple sample processing on HPC, you will need to use slurm job arrays to submit the workflow to avoid hitting [the limit of job submission per hour](https://docs.ycrc.yale.edu/clusters-at-yale/job-scheduling/common-job-failures/#rate-limits)
+5. To process multiple samples on HPC, you should use Slurm job arrays for submitting the workflow to avoid exceeding the [hourly job submission limit](https://docs.ycrc.yale.edu/clusters-at-yale/job-scheduling/common-job-failures/#rate-limits).
 ```
 #!/bin/bash
 #SBATCH -J CPCT1
