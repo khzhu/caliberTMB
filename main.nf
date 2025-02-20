@@ -60,7 +60,7 @@ workflow {
     ch_versions = ch_versions.mix( ALIGN_MARKDUP_BQSR_STATS.out.versions )
 
     // Somatic variant detection
-    ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
+    ALIGN_MARKDUP_BQSR_STATS.out.cram.combine(ALIGN_MARKDUP_BQSR_STATS.out.crai, by: 0)
         .branch{ meta, cram, crai ->
             new_meta = meta.clone()
             new_meta.id = meta.pid

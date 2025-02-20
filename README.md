@@ -74,7 +74,7 @@ TMB-estimation/
 ├── main.nf
 ```
 ## Set up and run a workflow
-1. TThis repository must be cloned from GitHub first:
+1. This repository must be cloned from GitHub first:
 ```
 git clone https://github.com/khzhu/caliberTMB.git
 ```
