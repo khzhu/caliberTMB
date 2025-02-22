@@ -6,11 +6,12 @@
 
 library(dplyr)
 library(optparse)
+library(stringr)
 
 option_list = list(
   make_option(c("-m", "--maf"), type="character", default=NULL,
               help="maf file"),
-  make_option(c("-s", "--hotspot_maf"), type="character", default=NULL,
+  make_option(c("-t", "--hotspot_maf"), type="character", default=NULL,
               help="path to the hotspot variant file"),
   make_option(c("-o", "--out"), type="character", default="tmb.tsv",
               help="output file name [default= %default]"),
@@ -42,8 +43,7 @@ calculate_tmb <- function(maf_file, hotspot_maf, out_tsv, tumor_coverage, alt_co
                                CLIN_SIG, Existing_variation, IMPACT, AF) %>%
                     filter( grepl('missense|synonymous|frameshift|inframe|stop_gained', Consequence)
                           & t_depth >= tumor_coverage
-                          & t_alt_count >= alt_count
-                          & AF <= 0.001) %>%
+                          & t_alt_count >= alt_count) %>%
                     mutate(var_id=paste(Chromosome, Start_Position, End_Position,
                             Reference_Allele,Tumor_Seq_Allele2,sep="-"),
                             t_vaf=round(t_alt_count/t_depth,2),

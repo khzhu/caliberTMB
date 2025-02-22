@@ -23,7 +23,7 @@ process TMB_CALIBRATION {
     """
     cat $mutect2_maf $strelk2_maf > $out_maf
     Rscript ${params.project_dir}/bin/calculate_tmb.R \
-            -m $out_maf -s ${params.hotspots} \
+            -m $out_maf -t ${params.hotspots} \
             -o ${prefix}.tsv -s ${params.tmb_callable}
 
     cat <<-END_VERSIONS > versions.yml
