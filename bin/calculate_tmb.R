@@ -10,7 +10,7 @@ library(optparse)
 option_list = list(
   make_option(c("-m", "--maf"), type="character", default=NULL,
               help="maf file"),
-  make_option(c("-h", "--hotspot_maf"), type="character", default=NULL,
+  make_option(c("-s", "--hotspot_maf"), type="character", default=NULL,
               help="path to the hotspot variant file"),
   make_option(c("-o", "--out"), type="character", default="tmb.tsv",
               help="output file name [default= %default]"),
