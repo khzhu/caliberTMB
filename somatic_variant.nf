@@ -7,24 +7,24 @@ include { SNV_MUTECT2  } from './subworkflows/snv_mutect2/main'
 include { SNV_STRELKA2 } from './subworkflows/snv_strelka2/main'
 include { TMB_CALIBER  } from './subworkflows/calculate_tmb/main'
 
-// main workflow
+// Main workflow
 workflow {
     log.info """\
-    TMB estimation pipeline ${params.release}
+    TMB Estimation Pipeline ${params.release}
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     sample sheet  : ${params.input_json}
     output dir    : ${params.output_dir}
     """
 
-    // Read sample config file
+    // Read the input sample configuration file
     def jsonSlurper = new JsonSlurper()
 
-    // If params.input_json exists, use that for multi sample processing.
-    // Otherwise, default to single sample analysis.
+    // If params.input_json is available, use it for multi-sample processing.
+    // If not, default to single sample analysis.
     multi_params = params.input_json ? jsonSlurper.parse(new File(params.input_json)).collect{params + it} : [params]
     output_dir = params.output_dir ? params.output_dir : "."
     
-    // run samples through the pipeline
+    // Process samples through the pipeline
     samples = Channel.from(multi_params.collect{ it -> tuple([
                 id: it.patient_id, tissue: it.tissue, purity: it.purity ],
                 [ file(it.bam_tumor, checkIfExists: true), file(it.bam_normal, checkIfExists: true) ],
@@ -39,7 +39,7 @@ workflow {
                         intervals = intervals.baseName != "no_intervals" ? intervals : []
                         [new_meta, input_bams, input_index_files, intervals]
                     }
-    // calling mutect2 somatic variants
+    // Somatic variant calling with Mutect2
     SNV_MUTECT2 (ch_input_files,
                 [[ id:'genome'], file(params.reference_file, checkIfExists: true)],
                 [[ id:'genome'], file(params.fai_file, checkIfExists: true)],
@@ -53,7 +53,7 @@ workflow {
                 file(params.vep_cache, checkIfExists: true))
     ch_versions = ch_versions.mix( SNV_MUTECT2.out.versions )
 
-    // calling strelka2 somatic variants
+    // Somatic variant calling with Strelka2
     SNV_STRELKA2 (samples,
                 [[ id:'genome'], file(params.reference_file, checkIfExists: true)],
                 [[ id:'genome'], file(params.fai_file, checkIfExists: true)],
@@ -67,7 +67,7 @@ workflow {
                 file(params.vep_cache, checkIfExists: true))
     ch_versions = ch_versions.mix( SNV_STRELKA2.out.versions )
 
-    // collecting sample MAF files
+    // Gather annotated variants in MAF format files
     mutect2_maf = SNV_MUTECT2.out.maf
         .map { it -> it[1] }
         .collectFile( name: 'mutect2_merged.maf', keepHeader:true, skip:2, storeDir:params.store_dir )
@@ -78,6 +78,7 @@ workflow {
         .collectFile( name: 'strelka2_merged.maf', keepHeader:false, skip:2, storeDir:params.store_dir )
         .map { [ [ id:'tmb'], it ] }
 
+    // Estimating tumor mutation burden (TMB)
     TMB_CALIBER ( mutect2_maf, strelka2_maf )
     ch_versions = ch_versions.mix(TMB_CALIBER.out.versions)
 }
