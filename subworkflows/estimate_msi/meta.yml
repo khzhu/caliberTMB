@@ -1,0 +1,74 @@
+name: "estimate_msi"
+description: Microsatellite instability (MSI) detection in a Tumor.
+keywords:
+  - Molecular marker
+  - DNA MisMatch Repair deficiency (dMMR)
+  - MicroSatellite Instability (MSI)
+  - polymerase chain reaction (PCR)
+  - ImmunoHistoChemistry (IHC)
+  - Formalin-Fixed Paraffin-Embedded (FFPE)
+tools:
+  - "msisensor2":
+      description: "MSISensor2 is a novel algorithm that utilizes machine learning 
+      to detect microsatellite instability (MSI) using tumor-only sequencing data, 
+      including formalin-fixed paraffin-embedded (FFPE) samples, and other sample types."
+      homepage: "https://github.com/niu-lab/msisensor2"
+      documentation: "https://github.com/niu-lab/msisensor2/blob/master/README.md"
+      tool_dev_url: "https://github.com/niu-lab/msisensor2"
+      license: ["GPL-3.0"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test', tissue:'tumor' ]
+    - tumor_bam:
+        type: file
+        description: BAM file
+        pattern: "*.bam"
+    - tumor_bam_index:
+        type: file
+        description: BAM index file
+        pattern: "*.bai"
+  - - models:
+        type: file
+        description: Microsatellite instability regions
+        pattern: "*/*"
+output:
+  - msi:
+      - meta:
+          type: map
+          description: |
+            Groovy map containing sample information
+            e.g. [ id:'test', tissue:'tumor' ]
+      - ${prefix}:
+          type: file
+          description: MSI classifications in a text file
+  - distribution:
+      - meta:
+          type: map
+          description: |
+            Groovy map containing sample information
+            e.g. [ id:'test', tissue:'tumor' ]
+      - ${prefix}_dis:
+          type: file
+          description: Coverage distributions of regions with MSI
+  - somatic:
+      - meta:
+          type: map
+          description: |
+            Groovy map containing sample information
+            e.g. [ id:'test', tissue:'tumor' ]
+      - ${prefix}_somatic:
+          type: file
+          description: Somatic MSI regions identified.
+  - versions:
+      - versions.yml:
+          type: file
+          description: Software versions file
+          pattern: "versions.yml"
+authors:
+  - "@kelseyz"
+maintainers:
+  - "@kelseyz"

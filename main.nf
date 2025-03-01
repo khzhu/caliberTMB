@@ -6,6 +6,7 @@ import groovy.json.JsonSlurper
 include { INDEX_GENOME             } from './subworkflows/index_genome/main'
 include { FASTQ_FASTP_FASTQC       } from './subworkflows/fastq_fastp_fastqc/main'
 include { ALIGN_MARKDUP_BQSR_STATS } from './subworkflows/align_markdup_bqsr_stats/main'
+include { ESTIMATE_MSI             } from './subworkflows/estimate_msi/main'
 include { SNV_MUTECT2              } from './subworkflows/snv_mutect2/main'
 include { SNV_STRELKA2             } from './subworkflows/snv_strelka2/main'
 include { TMB_CALIBER              } from './subworkflows/calculate_tmb/main'
@@ -62,6 +63,26 @@ workflow {
     ch_versions = ch_versions.mix( ALIGN_MARKDUP_BQSR_STATS.out.versions )
 
     // Somatic variant detection and annotation
+    ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
+        .branch{ meta, bam, bai ->
+            new_meta = meta.clone()
+            new_meta.id = meta.pid
+            new_meta.pid = ""
+            new_meta.tissue = ""
+            new_meta.purity = ""
+            tumor: bam.name.contains('_T')
+                return [new_meta, bam, bai]
+           normal: bam.name.contains('_N')
+               return [new_meta, bam, bai]
+        }
+        .set {ch_sample_bams}
+
+    // Estimating Microsatellite instability in tumor samples
+    ESTIMATE_MSI ( ch_sample_bams.tumor,
+                   Channel.fromPath(params.models, checkIfExists: true).collect() )
+    ch_versions = ch_versions.mix(ESTIMATE_MSI.out.versions)
+
+    // Somatic variant detection and annotation
     ALIGN_MARKDUP_BQSR_STATS.out.cram.combine(ALIGN_MARKDUP_BQSR_STATS.out.crai, by: 0)
         .branch{ meta, cram, crai ->
             new_meta = meta.clone()
@@ -74,19 +95,19 @@ workflow {
             normal: cram.name.contains('_N')
                 return [new_meta, cram, crai]
         }
-        .set {ch_sample_bams}
+        .set {ch_sample_crams}
 
-    ch_sample_bams.tumor.combine(ch_sample_bams.normal, by: 0)
-        .map { meta, tumor_bam, tumor_bai, normal_bam, normal_bai -> 
-            [meta, [tumor_bam, normal_bam], [tumor_bai, normal_bai]] }
-        .set { ch_paired_bams }
+    ch_sample_crams.tumor.combine(ch_sample_crams.normal, by: 0)
+        .map { meta, tumor_cram, tumor_crai, normal_cram, normal_crai ->
+            [meta, [tumor_cram, normal_cram], [tumor_crai, normal_crai]] }
+        .set { ch_paired_crams }
     bed_files = Channel.fromPath(params.tumor_panel_bed_files, checkIfExists: true)
-    ch_paired_bams.combine(bed_files)
-        .map { meta, input_bams, input_index_files, intervals ->
+    ch_paired_crams.combine(bed_files)
+        .map { meta, input_crams, input_index_files, intervals ->
             new_meta = meta.clone()
             new_meta.sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
             intervals = intervals.baseName != "no_intervals" ? intervals : []
-            [new_meta, input_bams, input_index_files, intervals]
+            [new_meta, input_crams, input_index_files, intervals]
         }
         .set {ch_input_files}
     // Somatic variant calling with Mutect2
@@ -104,7 +125,7 @@ workflow {
     ch_versions = ch_versions.mix( SNV_MUTECT2.out.versions )
 
     // Somatic variant calling with Strelka2
-    SNV_STRELKA2 (ch_paired_bams,
+    SNV_STRELKA2 (ch_paired_crams,
                 [[ id:'genome'], file(params.reference_file, checkIfExists: true)],
                 [[ id:'genome'], file(params.fai_file, checkIfExists: true)],
                 [[ id:'genome'], file(params.dict_file, checkIfExists: true)],
