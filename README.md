@@ -24,8 +24,9 @@ chmod +x nextflow
 nextflow info
 ```
 ## Directory structure:
-The TMB pipeline expects the following directory structure for the project root directory.
-```
+<details>
+    <summary>The TMB pipeline expects the following directory structure for the project root directory.</summary>
+    <pre>
 TMB-estimation/
 ├── bin
 │   └── calculate_tmb.R
@@ -68,11 +69,17 @@ TMB-estimation/
     │   ├── main.nf
     │   ├── meta.yml
     │   └── nextflow.config
+    ├── estimate_msi
+    │   ├── main.nf
+    │   ├── meta.yml
+    │   └── nextflow.config
 ├── nextflow.config
 ├── samples.json
 ├── README.md
 ├── main.nf
-```
+    </pre>
+</details>
+
 ## Set up and run a workflow
 1. This repository must be cloned from GitHub first:
 ```
