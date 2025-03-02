@@ -16,10 +16,10 @@ process MSISENSOR2_MSI {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    prefix = task.ext.prefix ?: "${meta.id}"
-    def model_cmd         = models     ? "-M models/"     : ""
-    def tumor_bam_cmd     = tumor_bam  ? "-t $tumor_bam"  : ""
+    def args          = task.ext.args ?: ''
+    def prefix        = task.ext.prefix ?: "${meta.id}"
+    def model_cmd     = models     ? "-M models/"     : ""
+    def tumor_bam_cmd = tumor_bam  ? "-t $tumor_bam"  : ""
     """
     msisensor2 msi \\
         -b ${task.cpus} \\
