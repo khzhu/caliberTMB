@@ -87,7 +87,7 @@ git clone https://github.com/khzhu/caliberTMB.git
 ```
 2. Before you run the workflow, you need to load the Java runtime.
 ```
-module load ANTLR/2.7.7-GCCcore-12.2.0-Java-11
+module load GATK/4.6.0.0-GCCcore-12.2.0-Java-17
 ```
 3. The input sample JSON file must include at least five columns: specimen_id, patient_id, tissue (tumor source site),
 purity (estimated tumor cell percentages in tissue samples), and read1/2 (paired-end raw reads).

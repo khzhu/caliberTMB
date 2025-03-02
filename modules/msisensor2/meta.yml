@@ -87,5 +87,7 @@ output:
           pattern: "versions.yml"
 authors:
   - "@adamrtalbot"
+  - "@kelseyz"
 maintainers:
   - "@adamrtalbot"
+  - "@kelseyz"
