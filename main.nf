@@ -68,7 +68,6 @@ workflow {
         .branch{ meta, bam, bai ->
             new_meta = meta.clone()
             new_meta.id = meta.pid
-            new_meta.pid = ""
             new_meta.tissue = ""
             new_meta.purity = ""
             tumor: bam.name.contains('_T')
@@ -82,7 +81,7 @@ workflow {
     ESTIMATE_MSI ( ch_sample_bams.tumor,
                    Channel.fromPath(params.models, checkIfExists: true).collect() )
     ch_versions = ch_versions.mix(ESTIMATE_MSI.out.versions)
-    ESTIMATE_MSI.out.msi
+    ESTIMATE_MSI.out.msi.map { it -> it[1] }
         | MERGE_MSI
         | collectFile (name: 'msi.all.txt', storeDir: "${params.output_dir}/msi")
 
@@ -91,7 +90,6 @@ workflow {
         .branch{ meta, cram, crai ->
             new_meta = meta.clone()
             new_meta.id = meta.pid
-            new_meta.pid = ""
             new_meta.tissue = ""
             new_meta.purity = ""
             tumor: cram.name.contains('_T')
@@ -110,7 +108,8 @@ workflow {
         .map { meta, input_crams, input_index_files, intervals ->
             sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
             new_meta = meta.clone()
-            new_meta.sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
+            sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
+            new_meta.id = sid
             intervals = intervals.baseName != "no_intervals" ? intervals : []
             [new_meta, input_crams, input_index_files, intervals]
         }

@@ -46,18 +46,18 @@ workflow SNV_MUTECT2 {
     GATK4_CALCULATECONTAMINATION ( GETPILEUPSUMMARIES_TUMOR.out.table,
                                     GETPILEUPSUMMARIES_NORMAL.out.table)
     GATK4_FILTERMUTECTCALLS ( GATK4_MUTECT2.out.vcf.combine(GATK4_MUTECT2.out.tbi,
-                                by:[1,5]).combine(GATK4_MUTECT2.out.stats, by:[1,5]),
+                                by:0).combine(GATK4_MUTECT2.out.stats, by:0),
                                 GATK4_CALCULATECONTAMINATION.out.contamination,
                                 ch_fasta, ch_fai, ch_dict)
     
-    BCFTOOLS_NORM ( GATK4_FILTERMUTECTCALLS.out.vcf.combine(GATK4_FILTERMUTECTCALLS.out.tbi, by:[1,5]), ch_fasta )
+    BCFTOOLS_NORM ( GATK4_FILTERMUTECTCALLS.out.vcf.combine(GATK4_FILTERMUTECTCALLS.out.tbi, by:0), ch_fasta )
     ch_versions = ch_versions.mix(BCFTOOLS_NORM.out.versions)
 
     ch_vcf_files = BCFTOOLS_NORM
                         .out.vcf
                         .map { meta, norm_vcfs ->
                             new_meta = meta.clone()
-                            new_meta.sid = ""
+                            new_meta.id = new_meta.pid
                             [new_meta, norm_vcfs] }
                         .groupTuple()
     MUTECT2_MERGEVCFS ( ch_vcf_files, ch_dict )
