@@ -66,7 +66,11 @@ workflow {
     // Somatic variant detection and annotation
     ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
         .branch{ meta, bam, bai ->
-            new_meta = [id:meta.pid,pid:meta.pid]
+            new_meta = meta.clone()
+            new_meta.id = meta.pid
+            new_meta.pid = ""
+            new_meta.tissue = ""
+            new_meta.purity = ""
             tumor: bam.name.contains('_T')
                 return [new_meta, bam, bai]
            normal: bam.name.contains('_N')
@@ -79,13 +83,17 @@ workflow {
                    Channel.fromPath(params.models, checkIfExists: true).collect() )
     ch_versions = ch_versions.mix(ESTIMATE_MSI.out.versions)
     ESTIMATE_MSI.out.msi
-        | MERGE_MS
+        | MERGE_MSI
         | collectFile (name: 'msi.all.txt', storeDir: "${params.output_dir}/msi")
 
     // Somatic variant detection and annotation
     ALIGN_MARKDUP_BQSR_STATS.out.cram.combine(ALIGN_MARKDUP_BQSR_STATS.out.crai, by: 0)
         .branch{ meta, cram, crai ->
-            new_meta = [id:meta.pid, pid:meta.pid]
+            new_meta = meta.clone()
+            new_meta.id = meta.pid
+            new_meta.pid = ""
+            new_meta.tissue = ""
+            new_meta.purity = ""
             tumor: cram.name.contains('_T')
                 return [new_meta, cram, crai]
             normal: cram.name.contains('_N')
@@ -101,7 +109,8 @@ workflow {
     ch_paired_crams.combine(bed_files)
         .map { meta, input_crams, input_index_files, intervals ->
             sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
-            new_meta = [id:sid, pid:meta.pid]
+            new_meta = meta.clone()
+            new_meta.sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
             intervals = intervals.baseName != "no_intervals" ? intervals : []
             [new_meta, input_crams, input_index_files, intervals]
         }
