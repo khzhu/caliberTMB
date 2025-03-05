@@ -17,6 +17,6 @@ workflow ESTIMATE_MSI {
     emit:
     msi          = MSISENSOR2_MSI.out.msi          // channel: [ val(meta), path(msi) ]
     distribution = MSISENSOR2_MSI.out.distribution // channel: [ val(meta), path(distribution) ]
-    somatic     = MSISENSOR2_MSI.out.somatic       // channel: [ val(meta), path(somatic) ]
-    versions    = ch_versions      // channel: [ path(versions.yml) ]
+    somatic      = MSISENSOR2_MSI.out.somatic      // channel: [ val(meta), path(somatic) ]
+    versions     = ch_versions                     // channel: [ path(versions.yml) ]
 }

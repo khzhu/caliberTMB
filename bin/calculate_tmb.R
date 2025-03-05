@@ -59,9 +59,17 @@ calculate_tmb <- function(maf_file, hotspot_maf, out_tsv, tumor_coverage, alt_co
   # remove duplicates
   tmb_df <- tmb_df[!duplicated(tmb_df$var_id),]
   # calculate TMB
-  tmb <- data.frame(unclass(table(tmb_df$Tumor_Sample_Barcode)))
-  t_value <- apply(tmb,1, function(x, size=callable) round(x/round(size/10^6,2),2)  )
-  write.table(data.frame(t_value), file=out_tsv, quote=FALSE, sep="\t", row.names=TRUE, col.names=FALSE)
+  mut_counts <- data.frame(unclass(table(tmb_df$Tumor_Sample_Barcode)))
+  colnames(mut_counts) <- "num_mut"
+  tmb_value <- apply(mut_counts, 1, function(x, size=callable) round(x/round(size/10^6,2),2)  )
+  tmb <- merge(mut_counts, data.frame(tmb_value),
+                            by = 'row.names', all = TRUE)
+  tmb$callable <- round(callable/10^6,2)
+  tmb <- data.frame(names = row.names(tmb), tmb)
+  tmb$names <- NULL
+  colnames(tmb)[1] <- "sample"
+  # Output TMB as a TSV
+  write.table(data.frame(tmb), file=out_tsv, quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
 }
 
 # Estimate Tumor Mutational Burden

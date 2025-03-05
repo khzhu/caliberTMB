@@ -1,0 +1,24 @@
+name: "merge_msi"
+description: |
+  Gather MSI score for each sample
+keywords:
+  - msi score
+  - collect file
+components:
+  - paste
+  - basename
+  - tail
+input:
+  - msi_text:
+      type: file
+      description: Input msi score in txt format
+      pattern: "*msi.txt"
+output:
+  - meta:
+      type: file
+      description: Includes all MSI scores for samples in the batch.
+      pattern: "*.txt"
+authors:
+  - "@kelseyz"
+maintainers:
+  - "@kelseyz"
