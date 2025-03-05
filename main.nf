@@ -106,10 +106,8 @@ workflow {
     bed_files = Channel.fromPath(params.tumor_panel_bed_files, checkIfExists: true)
     ch_paired_crams.combine(bed_files)
         .map { meta, input_crams, input_index_files, intervals ->
-            sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
             new_meta = meta.clone()
-            sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
-            new_meta.id = sid
+            new_meta.sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
             intervals = intervals.baseName != "no_intervals" ? intervals : []
             [new_meta, input_crams, input_index_files, intervals]
         }

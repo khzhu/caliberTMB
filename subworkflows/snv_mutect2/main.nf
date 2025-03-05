@@ -57,7 +57,7 @@ workflow SNV_MUTECT2 {
                         .out.vcf
                         .map { meta, norm_vcfs ->
                             new_meta = meta.clone()
-                            new_meta.id = new_meta.pid
+                            new_meta.sid = ""
                             [new_meta, norm_vcfs] }
                         .groupTuple()
     MUTECT2_MERGEVCFS ( ch_vcf_files, ch_dict )
