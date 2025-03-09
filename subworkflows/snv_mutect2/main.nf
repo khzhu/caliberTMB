@@ -69,6 +69,12 @@ workflow SNV_MUTECT2 {
                     vep_cache)
     ch_versions = ch_versions.mix(MUTECT2_VEP.out.versions)
 
+    MUTECT2_VEP_JSON ( MUTECT2_MERGEVCFS.out.vcf.combine(MUTECT2_MERGEVCFS.out.tbi, by:0),
+                    ch_fasta,
+                    ch_germline_resource,
+                    ch_cosmic_vcf,
+                    vep_cache)
+
     MUTECT2_VCF2MAF ( MUTECT2_VEP.out.vcf, ch_fasta, vep_cache)
     ch_versions = ch_versions.mix(MUTECT2_VCF2MAF.out.versions)
 
@@ -77,6 +83,7 @@ workflow SNV_MUTECT2 {
     tbi      = MUTECT2_MERGEVCFS.out.tbi    // channel: [ val(meta), path("*.tbi") ]
     vep      = MUTECT2_VEP.out.vcf          // channel: [ val(meta), path("*.vep.vcf") ]
     html     = MUTECT2_VEP.out.html         // channel: [ val(meta), path("*.html")]
+    json     = MUTECT2_VEP_JSON.out.json    // channel: [ val(meta), path("*.vep.json") ]
     maf      = MUTECT2_VCF2MAF.out.maf      // channel: [ val(meta), path("*.maf") ]
     stats    = GATK4_MUTECT2.out.stats      // channel: [ val(meta), path("*.stats") ]
     f1r2     = GATK4_MUTECT2.out.f1r2

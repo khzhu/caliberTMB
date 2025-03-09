@@ -60,6 +60,12 @@ workflow SNV_STRELKA2 {
                     vep_cache)
     ch_versions = ch_versions.mix(STRELKA2_VEP.out.versions)
 
+    STRELKA2_VEP_JSON ( STRELKA2_MERGEVCFS.out.vcf.combine(STRELKA2_MERGEVCFS.out.tbi, by:0),
+                    ch_fasta,
+                    ch_gnomad_vcf,
+                    ch_cosmic_vcf,
+                    vep_cache)
+
     STRELKA2_VCF2MAF ( STRELKA2_VEP.out.vcf, ch_fasta, vep_cache)
     ch_versions = ch_versions.mix(STRELKA2_VCF2MAF.out.versions)
 
@@ -67,6 +73,7 @@ workflow SNV_STRELKA2 {
     vcf      = STRELKA2_MERGEVCFS.out.vcf    // channel: [ val(meta), path("*.vcf.gz") ]
     tbi      = STRELKA2_MERGEVCFS.out.tbi    // channel: [ val(meta), path("*.tbi") ]
     vep      = STRELKA2_VEP.out.vcf
+    json     = STRELKA2_VEP.out.json
     html     = STRELKA2_VEP.out.html
     maf      = STRELKA2_VCF2MAF.out.maf      // channel: [ val(meta), path("*.maf") ]
     versions = ch_versions                   // channel: [ path(versions.yml) ]
