@@ -8,6 +8,7 @@ include { BCFTOOLS_NORM as BCFTOOLS_NORM_SNV    } from '../../modules/bcftools/n
 include { BCFTOOLS_NORM as BCFTOOLS_NORM_INDEL  } from '../../modules/bcftools/norm/main'
 include { GATK4_MERGEVCFS as STRELKA2_MERGEVCFS } from '../../modules/gatk4/mergevcfs/main'
 include { VEP as STRELKA2_VEP                   } from '../../modules/vep/main'
+include { VEP as STRELKA2_VEP_JSON              } from '../../modules/vep/main'
 include { VCF2MAF as STRELKA2_VCF2MAF           } from '../../modules/vcf2maf/main'
 
 

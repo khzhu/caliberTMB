@@ -10,6 +10,7 @@ include { GATK4_FILTERMUTECTCALLS                               } from '../../mo
 include { BCFTOOLS_NORM                                         } from '../../modules/bcftools/norm/main'
 include { GATK4_MERGEVCFS as MUTECT2_MERGEVCFS                  } from '../../modules/gatk4/mergevcfs/main'
 include { VEP as MUTECT2_VEP                                    } from '../../modules/vep/main'
+include { VEP as MUTECT2_VEP_JSON                               } from '../../modules/vep/main'
 include { VCF2MAF as MUTECT2_VCF2MAF                            } from '../../modules/vcf2maf/main'
 
 
