@@ -107,7 +107,9 @@ workflow {
     ch_paired_crams.combine(bed_files)
         .map { meta, input_crams, input_index_files, intervals ->
             new_meta = meta.clone()
-            new_meta.sid = intervals.baseName != "no_intervals" ? new_meta.id + "_" + intervals.baseName : new_meta.id
+            new_meta.id = intervals.baseName != "no_intervals" ? new_meta.pid + "_" + intervals.baseName : new_meta.pid
+            new_meta.tissue = ""
+            new_meta.purity = ""
             intervals = intervals.baseName != "no_intervals" ? intervals : []
             [new_meta, input_crams, input_index_files, intervals]
         }
