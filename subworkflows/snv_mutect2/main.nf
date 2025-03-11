@@ -47,11 +47,11 @@ workflow SNV_MUTECT2 {
     GATK4_CALCULATECONTAMINATION ( GETPILEUPSUMMARIES_TUMOR.out.table,
                                     GETPILEUPSUMMARIES_NORMAL.out.table)
     GATK4_FILTERMUTECTCALLS ( GATK4_MUTECT2.out.vcf.combine(GATK4_MUTECT2.out.tbi,
-                                by:[1,2,3]).combine(GATK4_MUTECT2.out.stats, by:[1,2,3]),
+                                by:1).combine(GATK4_MUTECT2.out.stats, by:1),
                                 GATK4_CALCULATECONTAMINATION.out.contamination,
                                 ch_fasta, ch_fai, ch_dict)
     
-    BCFTOOLS_NORM ( GATK4_FILTERMUTECTCALLS.out.vcf.combine(GATK4_FILTERMUTECTCALLS.out.tbi, by:[1,2]), ch_fasta )
+    BCFTOOLS_NORM ( GATK4_FILTERMUTECTCALLS.out.vcf.combine(GATK4_FILTERMUTECTCALLS.out.tbi, by:1), ch_fasta )
     ch_versions = ch_versions.mix(BCFTOOLS_NORM.out.versions)
 
     ch_vcf_files = BCFTOOLS_NORM
@@ -63,14 +63,14 @@ workflow SNV_MUTECT2 {
                         .groupTuple()
     MUTECT2_MERGEVCFS ( ch_vcf_files, ch_dict )
 
-    MUTECT2_VEP ( MUTECT2_MERGEVCFS.out.vcf.combine(MUTECT2_MERGEVCFS.out.tbi, by:0),
+    MUTECT2_VEP ( MUTECT2_MERGEVCFS.out.vcf.combine(MUTECT2_MERGEVCFS.out.tbi, by:1),
                     ch_fasta,
                     ch_germline_resource,
                     ch_cosmic_vcf,
                     vep_cache)
     ch_versions = ch_versions.mix(MUTECT2_VEP.out.versions)
 
-    MUTECT2_VEP_JSON ( MUTECT2_MERGEVCFS.out.vcf.combine(MUTECT2_MERGEVCFS.out.tbi, by:0),
+    MUTECT2_VEP_JSON ( MUTECT2_MERGEVCFS.out.vcf.combine(MUTECT2_MERGEVCFS.out.tbi, by:1),
                     ch_fasta,
                     ch_germline_resource,
                     ch_cosmic_vcf,

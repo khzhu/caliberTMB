@@ -64,7 +64,7 @@ workflow {
     ch_versions = ch_versions.mix( ALIGN_MARKDUP_BQSR_STATS.out.versions )
 
     // Somatic variant detection and annotation
-    ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
+    ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: [0,1])
         .branch{ meta, bam, bai ->
             new_meta = meta.clone()
             new_meta.id = meta.pid
@@ -86,7 +86,7 @@ workflow {
         | collectFile (name: 'msi.all.txt', storeDir: "${params.output_dir}/msi")
 
     // Somatic variant detection and annotation
-    ALIGN_MARKDUP_BQSR_STATS.out.cram.combine(ALIGN_MARKDUP_BQSR_STATS.out.crai, by: 0)
+    ALIGN_MARKDUP_BQSR_STATS.out.cram.combine(ALIGN_MARKDUP_BQSR_STATS.out.crai, by: [2,3])
         .branch{ meta, cram, crai ->
             new_meta = meta.clone()
             new_meta.id = meta.pid
