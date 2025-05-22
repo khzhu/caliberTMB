@@ -2,20 +2,21 @@
 // Alignment to genome with BWA and sort reads by SAMBAMBA
 //
 
-include { SEQKIT_SPLIT2              } from '../../modules/seqkit/main'
-include { BWA_MEM as BWA_MEM1        } from '../../modules/bwa/mem/main'
-include { BWA_MEM as BWA_MEM2        } from '../../modules/bwa/mem/main'
-include { SAMBAMBA_MERGE             } from '../../modules/sambamba/merge/main'
-include { SAMTOOLS_SORT as SAM_SORT1 } from '../../modules/samtools/sort/main'
-include { SAMTOOLS_SORT as SAM_SORT2 } from '../../modules/samtools/sort/main'
-include { SAMTOOLS_SORT as SAM_SORT  } from '../../modules/samtools/sort/main'
-include { SAMBAMBA_MARKDUP           } from '../../modules/sambamba/markdup/main'
-include { SAMBAMBA_FLAGSTAT          } from '../../modules/sambamba/flagstat/main'
-include { GATK4_BASERECALIBRATOR     } from '../../modules/gatk4/baserecalibrator/main'
-include { GATK4_APPLYBQSR            } from '../../modules/gatk4/applybqsr/main'
-include { SAMTOOLS_STATS             } from '../../modules/samtools/stats/main'
-include { SAMTOOLS_CONVERT           } from '../../modules/samtools/convert/main'
-
+include { SEQKIT_SPLIT2                 } from '../../modules/seqkit/main'
+include { BWA_MEM as BWA_MEM1           } from '../../modules/bwa/mem/main'
+include { BWA_MEM as BWA_MEM2           } from '../../modules/bwa/mem/main'
+include { SAMBAMBA_MERGE                } from '../../modules/sambamba/merge/main'
+include { SAMTOOLS_SORT as SAM_SORT1    } from '../../modules/samtools/sort/main'
+include { SAMTOOLS_SORT as SAM_SORT2    } from '../../modules/samtools/sort/main'
+include { SAMTOOLS_SORT as SAM_SORT     } from '../../modules/samtools/sort/main'
+include { SAMBAMBA_MARKDUP              } from '../../modules/sambamba/markdup/main'
+include { SAMBAMBA_FLAGSTAT             } from '../../modules/sambamba/flagstat/main'
+include { GATK4_BASERECALIBRATOR        } from '../../modules/gatk4/baserecalibrator/main'
+include { GATK4_APPLYBQSR               } from '../../modules/gatk4/applybqsr/main'
+include { SAMTOOLS_STATS                } from '../../modules/samtools/stats/main'
+include { SAMTOOLS_CONVERT              } from '../../modules/samtools/convert/main'
+include { MOSDEPTH                      } from '../../modules/picard/mosdepth/main'
+include { PICARD_COLLECTMULTIPLEMETRICS } from '../../modules/picard/collectmultiplemetrics/main'
 
 workflow ALIGN_MARKDUP_BQSR_STATS {
     take:
@@ -88,6 +89,17 @@ workflow ALIGN_MARKDUP_BQSR_STATS {
     // Generate samtool stats
     //
     SAMTOOLS_STATS ( GATK4_APPLYBQSR.out.bam, [[id:'genome'],fasta])
+
+    //
+    // Collect multiple Picard metrics
+    //
+    PICARD_COLLECTMULTIPLEMETRICS ( GATK4_APPLYBQSR.out.bam.mix(GATK4_APPLYBQSR.out.bai),
+                    [[id:'genome'], fasta, fai])
+
+     //
+     // Generate MOSDEPTH stats
+     //
+     MOSDEPTH ( GATK4_APPLYBQSR.out.bam.mix(GATK4_APPLYBQSR.out.bai), intervals, [[id:'genome'],fasta])
 
     //
     // Convert to CRAM
