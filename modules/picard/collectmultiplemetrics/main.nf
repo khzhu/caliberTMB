@@ -4,7 +4,7 @@ process PICARD_COLLECTMULTIPLEMETRICS {
 
     input:
     tuple val(meta) , path(bam), path(bai)
-    tuple val(meta2), path(fasta), path(fai)
+    tuple val(meta2), path(fasta)
 
     output:
     tuple val(meta), path("*_metrics"), emit: metrics
@@ -25,8 +25,7 @@ process PICARD_COLLECTMULTIPLEMETRICS {
         avail_mem = (task.memory.mega*0.8).intValue()
     }
     """
-    picard \\
-        -Xmx${avail_mem}M \\
+    java -jar /usr/picard/picard.jar \\
         CollectMultipleMetrics \\
         $args \\
         --INPUT $bam \\

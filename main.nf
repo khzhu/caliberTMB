@@ -10,6 +10,7 @@ include { ESTIMATE_MSI             } from './subworkflows/estimate_msi/main'
 include { SNV_MUTECT2              } from './subworkflows/snv_mutect2/main'
 include { SNV_STRELKA2             } from './subworkflows/snv_strelka2/main'
 include { TMB_CALIBER              } from './subworkflows/calculate_tmb/main'
+include { MULTIQC_REPORT           } from './subworkflows/multiqc_report/main'
 include { MERGE_MSI                } from './modules/collectmsi/main'
 
 // Main workflow
@@ -149,4 +150,8 @@ workflow {
     // Estimating tumor mutation burden (TMB)
     TMB_CALIBER ( mutect2_maf, strelka2_maf )
     ch_versions = ch_versions.mix(TMB_CALIBER.out.versions)
+
+    // Collecting multiple QC metrics
+    MULTIQC_REPORT (params.output_dir)
+    ch_versions = ch_versions.mix(MULTIQC_REPORT.out.versions)
 }

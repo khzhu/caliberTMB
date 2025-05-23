@@ -15,7 +15,7 @@ include { GATK4_BASERECALIBRATOR        } from '../../modules/gatk4/baserecalibr
 include { GATK4_APPLYBQSR               } from '../../modules/gatk4/applybqsr/main'
 include { SAMTOOLS_STATS                } from '../../modules/samtools/stats/main'
 include { SAMTOOLS_CONVERT              } from '../../modules/samtools/convert/main'
-include { MOSDEPTH                      } from '../../modules/picard/mosdepth/main'
+include { MOSDEPTH                      } from '../../modules/mosdepth/main'
 include { PICARD_COLLECTMULTIPLEMETRICS } from '../../modules/picard/collectmultiplemetrics/main'
 
 workflow ALIGN_MARKDUP_BQSR_STATS {
@@ -93,13 +93,16 @@ workflow ALIGN_MARKDUP_BQSR_STATS {
     //
     // Collect multiple Picard metrics
     //
-    PICARD_COLLECTMULTIPLEMETRICS ( GATK4_APPLYBQSR.out.bam.mix(GATK4_APPLYBQSR.out.bai),
-                    [[id:'genome'], fasta, fai])
+    PICARD_COLLECTMULTIPLEMETRICS ( GATK4_APPLYBQSR.out.bam.combine(GATK4_APPLYBQSR.out.bai, by: 0),
+                    [[id:'genome'], fasta])
+    ch_versions = ch_versions.mix(PICARD_COLLECTMULTIPLEMETRICS.out.versions)
 
-     //
-     // Generate MOSDEPTH stats
-     //
-     MOSDEPTH ( GATK4_APPLYBQSR.out.bam.mix(GATK4_APPLYBQSR.out.bai), intervals, [[id:'genome'],fasta])
+    //
+    // Generate MOSDEPTH stats
+    //
+    MOSDEPTH ( GATK4_APPLYBQSR.out.bam.combine(GATK4_APPLYBQSR.out.bai, by: 0),
+                    intervals, [[id:'genome'], fasta])
+    ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
 
     //
     // Convert to CRAM
