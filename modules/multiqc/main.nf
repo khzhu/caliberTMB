@@ -19,7 +19,7 @@ process MULTIQC {
     def prefix = task.ext.prefix ? "--filename ${task.ext.prefix}.html" : "${params.batch_id}.html"
 
     """
-    multiqc \\
+    /usr/local/bin/multiqc \\
         --force \\
         $args \\
         $prefix \\
@@ -27,7 +27,7 @@ process MULTIQC {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        multiqc: \$( multiqc --version | sed -e "s/multiqc, version //g" )
+        multiqc: \$( /usr/local/bin/multiqc --version | sed -e "s/multiqc, version //g" )
     END_VERSIONS
     """
 

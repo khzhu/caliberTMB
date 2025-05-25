@@ -64,6 +64,12 @@ workflow {
                 params.split_reads)
     ch_versions = ch_versions.mix( ALIGN_MARKDUP_BQSR_STATS.out.versions )
 
+    // Collecting multiple QC metrics
+    ALIGN_MARKDUP_BQSR_STATS.out.flagstat\
+                .collectFile(name: 'flagstat.txt', sort: { v -> v.size() },
+                newLine: true , storeDir: "${params.output_dir}/cohort") | MULTIQC_REPORT
+    ch_versions = ch_versions.mix(MULTIQC_REPORT.out.versions)
+
     // Somatic variant detection and annotation
     ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
         .branch{ meta, bam, bai ->
@@ -150,8 +156,4 @@ workflow {
     // Estimating tumor mutation burden (TMB)
     TMB_CALIBER ( mutect2_maf, strelka2_maf )
     ch_versions = ch_versions.mix(TMB_CALIBER.out.versions)
-
-    // Collecting multiple QC metrics
-    MULTIQC_REPORT (params.output_dir)
-    ch_versions = ch_versions.mix(MULTIQC_REPORT.out.versions)
 }

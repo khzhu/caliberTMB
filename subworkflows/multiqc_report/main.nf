@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-include { MULTIQC } from './modules/multiqc/main'
+include { MULTIQC } from '../../modules/multiqc/main'
 
 workflow MULTIQC_REPORT {
 
@@ -10,7 +10,7 @@ workflow MULTIQC_REPORT {
     main:
     ch_versions         = Channel.empty()
 
-    MULTIQC ( qc_metrics_ch )
+    MULTIQC ( ${params.output_dir} )
     ch_versions = ch_versions.mix(MULTIQC.out.versions)
 
     emit:
