@@ -10,7 +10,7 @@ include { ESTIMATE_MSI             } from './subworkflows/estimate_msi/main'
 include { SNV_MUTECT2              } from './subworkflows/snv_mutect2/main'
 include { SNV_STRELKA2             } from './subworkflows/snv_strelka2/main'
 include { TMB_CALIBER              } from './subworkflows/calculate_tmb/main'
-include { MULTIQC_REPORT           } from './subworkflows/multiqc_report/main'
+include { MULTIQC                  } from './modules/multiqc/main'
 include { MERGE_MSI                } from './modules/collectmsi/main'
 
 // Main workflow
@@ -76,8 +76,8 @@ workflow {
         .set {ch_sample_bams}
 
     // Collecting multiple QC metrics
-    MULTIQC_REPORT ( ch_sample_bams, params.output_dir )
-    ch_versions = ch_versions.mix(MULTIQC_REPORT.out.versions)
+    MULTIQC ( ch_sample_bams )
+    ch_versions = ch_versions.mix(MULTIQC.out.versions)
 
     // Estimating Microsatellite instability in tumor samples
     ESTIMATE_MSI ( ch_sample_bams.tumor,

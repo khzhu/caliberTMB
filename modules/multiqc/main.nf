@@ -2,6 +2,17 @@ process MULTIQC {
     tag "${params.batch_id}"
     label 'process_single'
 
+    container = "${params.container_dir}/multiqc_v1.28.simg"
+    cpus = 16
+    memory = 64.GB
+    ext.args = '-m mosdepth -m picard -m samtools -m fastqc'
+    publishDir (
+            path: { "${params.output_dir}/cohort/" },
+            mode: params.publish_dir_mode,
+            pattern: "*{html,yml, data}",
+            saveAs: { "multiqc/${it}" }
+    )
+
     input:
     path  multiqc_path
 
@@ -17,8 +28,7 @@ process MULTIQC {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ? "--filename ${task.ext.prefix}.html" : "--filename ${params.batch_id}.html"
-    def basePath = multiqc_path ?: "${params.output_dir}"
-    def subdirs = new File(basePath).listFiles().findAll {
+    def subdirs = new File("${params.output_dir}").listFiles().findAll {
                     it.isDirectory() && (it.name.contains('_T') || it.name.contains('_N'))}
                     .collect { it.absolutePath + "/qc" }.join(" ")
 
