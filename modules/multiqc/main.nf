@@ -17,13 +17,17 @@ process MULTIQC {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ? "--filename ${task.ext.prefix}.html" : "${params.batch_id}.html"
+    def subdirs = new File(multiqc_path).listFiles().findAll {
+                    it.isDirectory() && (it.name.contains('_T') || it.name.contains('_N'))}
+                    .collect { it.absolutePath + "/qc" }
 
     """
     /usr/local/bin/multiqc \\
         --force \\
         $args \\
         $prefix \\
-        $multiqc_path
+        $subdirs.join(' ') \\
+        -o .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -64,12 +64,6 @@ workflow {
                 params.split_reads)
     ch_versions = ch_versions.mix( ALIGN_MARKDUP_BQSR_STATS.out.versions )
 
-    // Collecting multiple QC metrics
-    ALIGN_MARKDUP_BQSR_STATS.out.flagstat\
-                .collectFile(name: 'flagstat.txt', sort: { v -> v.size() },
-                newLine: true , storeDir: "${params.output_dir}/cohort") | MULTIQC_REPORT
-    ch_versions = ch_versions.mix(MULTIQC_REPORT.out.versions)
-
     // Somatic variant detection and annotation
     ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
         .branch{ meta, bam, bai ->
@@ -80,6 +74,10 @@ workflow {
                return [new_meta, bam, bai]
         }
         .set {ch_sample_bams}
+
+    // Collecting multiple QC metrics
+    MULTIQC_REPORT ( ch_sample_bams, params.output_dir )
+    ch_versions = ch_versions.mix(MULTIQC_REPORT.out.versions)
 
     // Estimating Microsatellite instability in tumor samples
     ESTIMATE_MSI ( ch_sample_bams.tumor,

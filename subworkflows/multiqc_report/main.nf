@@ -5,12 +5,13 @@ include { MULTIQC } from '../../modules/multiqc/main'
 workflow MULTIQC_REPORT {
 
     take:
-    qc_metrics_ch
+    ch_bam_files
+    ch_input_qc_files
 
     main:
     ch_versions         = Channel.empty()
 
-    MULTIQC ( ${params.output_dir} )
+    MULTIQC ( ch_input_qc_files )
     ch_versions = ch_versions.mix(MULTIQC.out.versions)
 
     emit:
