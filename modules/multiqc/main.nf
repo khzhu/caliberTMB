@@ -14,7 +14,7 @@ process MULTIQC {
     )
 
     input:
-    path  multiqc_path
+    path bam_files
 
     output:
     path "*multiqc_report.html", emit: report
