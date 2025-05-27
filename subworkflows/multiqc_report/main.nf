@@ -6,12 +6,12 @@ workflow MULTIQC_REPORT {
 
     take:
     ch_bam_files
-    ch_input_qc_files
+    ch_qc_metrics
 
     main:
     ch_versions         = Channel.empty()
 
-    MULTIQC ( ch_input_qc_files )
+    MULTIQC ( ch_qc_metrics )
     ch_versions = ch_versions.mix(MULTIQC.out.versions)
 
     emit:

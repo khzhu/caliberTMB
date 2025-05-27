@@ -16,22 +16,23 @@ process MULTIQC {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ? "--filename ${task.ext.prefix}.html" : "${params.batch_id}.html"
-    def subdirs = new File(multiqc_path).listFiles().findAll {
+    def prefix = task.ext.prefix ? "--filename ${task.ext.prefix}.html" : "--filename ${params.batch_id}.html"
+    def basePath = multiqc_path ?: "${params.output_dir}"
+    def subdirs = new File(basePath).listFiles().findAll {
                     it.isDirectory() && (it.name.contains('_T') || it.name.contains('_N'))}
-                    .collect { it.absolutePath + "/qc" }
+                    .collect { it.absolutePath + "/qc" }.join(" ")
 
     """
-    /usr/local/bin/multiqc \\
+    multiqc \\
         --force \\
         $args \\
+        $subdirs \\
         $prefix \\
-        $subdirs.join(' ') \\
         -o .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        multiqc: \$( /usr/local/bin/multiqc --version | sed -e "s/multiqc, version //g" )
+        multiqc: \$( multiqc --version | sed -e "s/multiqc, version //g" )
     END_VERSIONS
     """
 
