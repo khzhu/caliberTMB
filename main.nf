@@ -77,7 +77,7 @@ workflow {
 
     // Collecting multiple QC metrics
     ALIGN_MARKDUP_BQSR_STATS.out.bam.combine(ALIGN_MARKDUP_BQSR_STATS.out.bai, by: 0)
-        .map{ meta, bam, bai -> bam } | MULTIQC
+        .map{ meta, bam, bai -> bam }.collect() | MULTIQC
     ch_versions = ch_versions.mix(MULTIQC.out.versions)
 
     // Estimating Microsatellite instability in tumor samples

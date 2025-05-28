@@ -37,7 +37,6 @@ process MULTIQC {
         --force \\
         $args \\
         $subdirs \\
-        $prefix \\
         -o .
 
     cat <<-END_VERSIONS > versions.yml
