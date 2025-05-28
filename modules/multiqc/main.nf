@@ -9,7 +9,7 @@ process MULTIQC {
     publishDir (
             path: { "${params.output_dir}/cohort/" },
             mode: params.publish_dir_mode,
-            pattern: "*{html,yml, data}",
+            pattern: "*{html,yml,_data}",
             saveAs: { "multiqc/${it}" }
     )
 
@@ -18,7 +18,7 @@ process MULTIQC {
 
     output:
     path "*multiqc_report.html", emit: report
-    path "*_data"              , emit: data
+    path "*multiqc_data"       , emit: data
     path "*_plots"             , optional:true, emit: plots
     path "versions.yml"        , emit: versions
 
